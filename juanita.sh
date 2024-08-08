@@ -62,7 +62,7 @@ list_loans() {
       .title as $title | 
       .dueDate as $dueDate |
       (determine_status($dueDate) as $status | badge($status; $dueDate)) as $badge | 
-      "- \($badge) - \($title)"
+      "- [ ] \($badge) - \($title)"
     '
   else
     echo -e "**No books for this account**"

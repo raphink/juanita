@@ -23,7 +23,7 @@ jobs:
       - name: Run script
         run: |
           chmod +x juanita.sh
-          echo -e "Updated on $(date --iso)\n\n" > books.md
+          echo -e "Updated on $(date +"%Y-%m-%d at %H:%M:%S")\n\n" > books.md
           ./juanita.sh >> books.md
 
       - name: Create or update Gist
