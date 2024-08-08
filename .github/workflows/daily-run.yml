@@ -38,6 +38,6 @@ jobs:
             GIST_ID=$(cat gist_id.txt)
           fi
           curl -s -X PATCH -H "Authorization: token $GIST_TOKEN" \
-            -d "{\"files\": {\"books.md\": {\"content\": \"$(cat output.md | sed ':a;N;$!ba;s/\n/\\n/g')\"}}}" \
+            -d "{\"files\": {\"books.md\": {\"content\": \"$(cat books.md | sed ':a;N;$!ba;s/\n/\\n/g')\"}}}" \
             https://api.github.com/gists/$GIST_ID
 
