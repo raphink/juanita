@@ -1,0 +1,43 @@
+name: Daily Script Execution
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs every day at midnight
+  workflow_dispatch:  # Allows manual triggering of the workflow
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up environment variables
+        run: |
+          echo "USER=${{ secrets.USER }}" >> $GITHUB_ENV
+          echo "PASS=${{ secrets.PASS }}" >> $GITHUB_ENV
+          echo "GIST=${{ secrets.GIST }}" >> $GITHUB_ENV
+          echo "GIST_TOKEN=${{ secrets.GIST_TOKEN }}" >> $GITHUB_ENV
+
+      - name: Run script
+        run: |
+          chmod +x juanita.sh
+          echo -e "Updated on $(date --iso)\n\n" > books.md
+          ./juanita.sh >> books.md
+
+      - name: Create or update Gist
+        env:
+          GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
+          GIST_ID: ${{ secrets.GIST }}
+        run: |
+          if [ -z "$GIST_ID" ]; then
+            curl -s -X POST -H "Authorization: token $GIST_TOKEN" \
+              -d '{"description":"Daily Juanita Output","public":false,"files":{"books.md":{"content":""}}}' \
+              https://api.github.com/gists | jq -r '.id' > gist_id.txt
+            GIST_ID=$(cat gist_id.txt)
+          fi
+          curl -s -X PATCH -H "Authorization: token $GIST_TOKEN" \
+            -d "{\"files\": {\"books.md\": {\"content\": \"$(cat output.md | sed ':a;N;$!ba;s/\n/\\n/g')\"}}}" \
+            https://api.github.com/gists/$GIST_ID
+
