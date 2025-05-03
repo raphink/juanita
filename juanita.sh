@@ -54,17 +54,31 @@ list_loans() {
         else "![Unknown](https://img.shields.io/badge/\(date)-unknown-lightgrey.svg)"
         end;
 
-      def determine_status(dueDate):
-        # Replace this logic with your own status determination logic
-        if (now | strftime("%Y%m%d")) > dueDate then "LATE!" else "OK" end;
+      def determine_status(dueDate; isReserved; renewal; renewalCounter):
+        (now | strftime("%Y%m%d") | tonumber) as $today |
+        (dueDate | tonumber) as $due |
+        if $due < $today then
+          "LATE!"
+        elif isReserved == 1 or renewal == 0 then
+          "CANNOT RENEW!"
+        elif renewalCounter > 0 then
+          "RENEWED"
+        elif $due <= ($today + 5) then
+          "NEEDS RENEWING"
+        else
+          "OK"
+        end;
 
       .response.items[] | 
       .title as $title | 
       .link as $link |
       .dueDate as $dueDate |
-      (determine_status($dueDate) as $status | badge($status; $dueDate)) as $badge | 
+      .isReserved as $isReserved |
+      .renewal as $renewal |
+      .renewalCounter as $renewalCounter |
+      (determine_status($dueDate; $isReserved; $renewal; $renewalCounter) as $status | badge($status; $dueDate)) as $badge |
       "- [ ] \($badge) - [\($title)](https://bavl.lausanne.ch/iguana/www.main.cls?surl=search&p=*#recordId=\($link)&srchDb=1_BAVL,2_BAVL)"
-    '
+   '
   else
     echo -e "**No books for this account**"
   fi
