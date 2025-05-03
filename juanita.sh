@@ -60,12 +60,12 @@ list_loans() {
         if $due < $today then
           "LATE!"
         elif $due <= ($today + 5) then
-          if isReserved == 1 or renewal > 0 then
+          if isReserved == 1 or renewalCounter > 0 then
             "CANNOT RENEW!"
           else
             "NEEDS RENEWING"
           end
-        elif renewal > 0 then
+        elif renewalCounter > 0 then
           "RENEWED"
         else
           "OK"
