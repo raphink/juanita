@@ -53,32 +53,34 @@ list_loans() {
         elif status == "FAILED RENEWING" then "![Failed Renewing](https://img.shields.io/badge/\(date)-failed_renewing-red.svg)"
         else "![Unknown](https://img.shields.io/badge/\(date)-unknown-lightgrey.svg)"
         end;
-
+  
       def determine_status(dueDate; isReserved; renewal; renewalCounter):
         (now | strftime("%Y%m%d") | tonumber) as $today |
         (dueDate | tonumber) as $due |
         if $due < $today then
           "LATE!"
-        elif isReserved == 1 or renewal == 0 then
-          "CANNOT RENEW!"
-        elif renewalCounter > 0 then
-          "RENEWED"
         elif $due <= ($today + 5) then
-          "NEEDS RENEWING"
+          if isReserved == 1 or renewal > 0 then
+            "CANNOT RENEW!"
+          else
+            "NEEDS RENEWING"
+          end
+        elif renewal > 0 then
+          "RENEWED"
         else
           "OK"
         end;
-
-      .response.items[] | 
-      .title as $title | 
+  
+      .response.items[] |
+      .title as $title |
       .link as $link |
       .dueDate as $dueDate |
       .isReserved as $isReserved |
       .renewal as $renewal |
       .renewalCounter as $renewalCounter |
       (determine_status($dueDate; $isReserved; $renewal; $renewalCounter) as $status | badge($status; $dueDate)) as $badge |
-      "- [ ] \($badge) - [\($title)](https://bavl.lausanne.ch/iguana/www.main.cls?surl=search&p=*#recordId=\($link)&srchDb=1_BAVL,2_BAVL)"
-   '
+      "- [ ] \($badge) - [\($title)]](https://bavl.lausanne.ch/iguana/www.main.cls?surl=search&p=*#recordId=\($link)&srchDb=1_BAVL,2_BAVL)"
+    '
   else
     echo -e "**No books for this account**"
   fi
