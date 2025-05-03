@@ -60,9 +60,10 @@ list_loans() {
 
       .response.items[] | 
       .title as $title | 
+      .link as $link |
       .dueDate as $dueDate |
       (determine_status($dueDate) as $status | badge($status; $dueDate)) as $badge | 
-      "- [ ] \($badge) - \($title)"
+      "- [ ] \($badge) - [\($title)](https://bavl.lausanne.ch/iguana/www.main.cls?surl=search&p=*#recordId=\($link)&srchDb=1_BAVL,2_BAVL)"
     '
   else
     echo -e "**No books for this account**"
