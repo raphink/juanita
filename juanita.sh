@@ -72,14 +72,15 @@ list_loans() {
         end;
   
       .response.items[] |
-      .title as $title |
+      .title as $rawTitle |
+      ($rawTitle | gsub("\\["; "(") | gsub("\\]"; ")")) as $title |
       .link as $link |
       .dueDate as $dueDate |
       .isReserved as $isReserved |
       .renewal as $renewal |
       .renewalCounter as $renewalCounter |
       (determine_status($dueDate; $isReserved; $renewal; $renewalCounter) as $status | badge($status; $dueDate)) as $badge |
-      "- [ ] \($badge) - [\($title)]](https://bavl.lausanne.ch/iguana/www.main.cls?surl=search&p=*#recordId=\($link)&srchDb=1_BAVL,2_BAVL)"
+      "- [ ] \($badge) - [\($title)](https://bavl.lausanne.ch/iguana/www.main.cls?surl=search&p=*#recordId=\($link)&srchDb=1_BAVL,2_BAVL)"
     '
   else
     echo -e "**No books for this account**"
